@@ -7,101 +7,79 @@ import car.CarForRent;
 import car.CarForSell;
 import car.RentFilter;
 import payment.PaymentMethod;
+import system.Activity;
 import system.Book;
 import system.Confirmation;
+import system.DB;
 import system.FileManager;
 import system.Message;
 import system.Report;
 
 public class User extends Person {
-
-    private static final long serialVersionUID = 1L;
     private Message Message;
     private int RentingNumber;
     private int BuyingNumber;
     private int SellingNumber;
-    private Boolean firstEdit;
-    private ArrayList<CarForRent> RentedCar;
-    private ArrayList<Driver> MyDriver;
-    private ArrayList<Report> MyActivity;
-    private StringBuilder RecentActivity;
-    
-    public User() {
-        this.MyActivity=new ArrayList<>();
-        this.RecentActivity=new StringBuilder();
+    private boolean firstEdit;
+
+	public User() {
         this.firstEdit = true;
-        this.RentedCar=new ArrayList<>();
         this.Message=new Message();
         this.BuyingNumber=0;
         this.SellingNumber=0;
-        this.RentingNumber=0;        
+        this.RentingNumber=0;
     }
-    public void editProfile(String Fname,String Lname, String Gender, String Address ,String State, String Email,String Password ,String PhoneNumber,String Pic,PaymentMethod Payment) {
+	
+	public int getRentingNumber() {
+		return RentingNumber;
+	}
+
+	public int getBuyingNumber() {
+		return BuyingNumber;
+	}
+
+	public int getSellingNumber() {
+		return SellingNumber;
+	}
+
+	public boolean isFirstEdit() {
+		return firstEdit;
+	}
+	
+    public boolean editProfile(String Fname,String Lname, boolean Gender, String Address ,String State, String Email,String Password ,String PhoneNumber,String Pic,PaymentMethod Payment) {
         this.setAddress(Address);
         this.setEmail(Email);
-        this.setFname(Fname);
+        this.setfName(Fname);
         this.setGender(Gender);
-        this.setLname(Lname);
+        this.setlName(Lname);
         this.setPassword(Password);
         this.setPhoneNumber(PhoneNumber);
         this.setState(State);
-        this.setMyMethod(Payment);
+        this.setPaymentMethod(Payment);
         this.setPic(Pic);
         if(this.firstEdit){
-            Confirmation.accountConfirmation(this);
+            Confirmation.accountConfirmation(Fname+" "+Lname);
+            new Activity(true,this.getId(), "Welcome to our system.");
             this.firstEdit=false;
+            return DB.saveClient(this);
         }
-        else
-            Confirmation.editConfirmation(this.getEmail());
+        else{
+        	Confirmation.editConfirmation(Email,Fname+" "+Lname);
+        	new Activity(true,this.getId(), "you have updated your personal info.");
+    		return DB.updateClient(this);
+        }
     }
     
-    public void sellCar(CarForSell SellThisCar) {
+	public void sellCar(CarForSell sellThisCar){
+        new Activity(true,this.getId(),"you have added a car for sell and waiting for admin approval");
+        new Activity(false,this.getId()," has added a car to be sold by "+sellThisCar.getCarPrice()+" $");
         this.SellingNumber++;
-        SellThisCar.waitingForApproval();
-        Calendar cal= Calendar.getInstance();
-        Report report = new Report(this.getFname(),"Has added a new car",SellThisCar.getCarPrice(),cal.get(Calendar.DATE),cal.get(Calendar.MONTH)+1);
-        this.RecentActivity.append(this.getFname()).append(" ").append("Has added a new car").append(" ").append(SellThisCar.getCarPrice()).append("   ").append(cal.get(Calendar.DATE)).append("\\").append(cal.get(Calendar.MONTH)+1).append("\n");
-        this.MyActivity.add(report);
+        sellThisCar.waitingForApproval();
     }
-
-    
-    public void bookDriver(int IndexOfCar){
-        CarForRent CurrentCar=this.RentedCar.get(IndexOfCar);
-        Book CurrentCarBookedFrom=CurrentCar.getBookedFrom().get(CurrentCar.getBookedFrom().size());
-        Book CurrentCarBookedTo=CurrentCar.getBookedTo().get(CurrentCar.getBookedTo().size());
-        Driver CurrentDriver=new Driver().getDriverForMe(CurrentCarBookedFrom,CurrentCarBookedTo);
-        this.MyDriver.add(IndexOfCar, CurrentDriver);
-        float CurrentDriverMoney=this.MyDriver.get(IndexOfCar).getDriverSalaryPerH()*(CurrentCarBookedTo.getFullHours()-CurrentCarBookedFrom.getFullHours());
-        CurrentDriver.Pay(this.getMyMethod(),CurrentDriverMoney);
-        Confirmation.confirmBookingDriver(this.getEmail());
-        Calendar cal= Calendar.getInstance();
-        Report report = new Report(this.getFname(),"Has booked his driver",CurrentDriverMoney,cal.get(Calendar.DATE),cal.get(Calendar.MONTH)+1);
-        this.RecentActivity.append(this.getFname()).append(" ").append("Has booked his driver").append(" ").append(CurrentDriverMoney).append("   ").append(cal.get(Calendar.DATE)).append("\\").append(cal.get(Calendar.MONTH)+1).append("\n");
-        this.MyActivity.add(report);
-    }
-    
-
-    public void unbookDriver(int IndexOfCar) {
-        Driver CurrentDriver=this.MyDriver.get(IndexOfCar);
-        CarForRent CurrentCar=this.RentedCar.get(IndexOfCar);
-        Book CurrentCarBookedFrom=CurrentCar.getBookedFrom().get(CurrentCar.getBookedFrom().size());
-        Book CurrentCarBookedTo=CurrentCar.getBookedTo().get(CurrentCar.getBookedTo().size());
-        float CurrentMoney=CurrentDriver.getDriverSalaryPerH()*(CurrentCarBookedTo.getFullHours()-CurrentCarBookedFrom.getFullHours());
-        CurrentDriver.unBookThisOne(CurrentDriver,CurrentCarBookedFrom,CurrentCarBookedTo);
-        CurrentDriver.getMyMoneyBack(this.getMyMethod(),CurrentMoney);
-        Confirmation.confirmUnbookDriver(this);
-        Calendar cal= Calendar.getInstance();
-        Report report = new Report(this.getFname(),"Has unbooked his driver",CurrentMoney,cal.get(Calendar.DATE),cal.get(Calendar.MONTH)+1);
-        this.RecentActivity.append(this.getFname()).append(" ").append("Has unbooked his driver").append(" ").append(CurrentMoney).append("   ").append(cal.get(Calendar.DATE)).append("\\").append(cal.get(Calendar.MONTH)+1).append("\n");
-        this.MyActivity.add(report);
-        this.MyDriver.remove(CurrentDriver);
-    }
-    
-
-    public void unbookCar(int IndexOfCar) {
-        CarForRent CurrentCar=this.RentedCar.get(IndexOfCar);
-        Book CurrentCarBookedFrom=CurrentCar.getBookedFrom().get(CurrentCar.getBookedFrom().size());
-        Book CurrentCarBookedTo=CurrentCar.getBookedTo().get(CurrentCar.getBookedTo().size());
+	
+    public void unbookCar(CarForRent car){
+        Book BookedFrom=car.getBookedFrom();
+        Book BookedTo=car.getBookedTo();
         float CurrentMoney=CurrentCar.getPricePerH()*(CurrentCarBookedTo.getFullHours()-CurrentCarBookedFrom.getFullHours());
         CurrentCar.unbookCar(CurrentCarBookedFrom,CurrentCarBookedTo);
         CurrentCar.getMyMoneyBack(this.getMyMethod(),CurrentMoney);
@@ -229,4 +207,8 @@ public class User extends Person {
             this.MyDriver.add(IndexOfCar, null);
         }
     }
+    
+    private void saveActivity(int id, String string) {
+		DB.saveUserActivity(id,string);
+	}
 }

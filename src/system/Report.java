@@ -13,7 +13,10 @@ public class Report implements Serializable{
         this.Month=Month;
         this.Money=Money;
     }
-    public String getReport(){
+    public Report(int id, String string) {
+		// TODO Auto-generated constructor stub
+	}
+	public String getReport(){
         return this.Report;
     }
     public int getDay(){

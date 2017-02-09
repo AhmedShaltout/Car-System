@@ -1,112 +1,93 @@
 package person;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-
 import car.CarForRent;
 import car.CarForSell;
 import payment.PaymentMethod;
 import system.CarRentSystemException;
 import system.FileManager;
 
-public abstract class Person implements Serializable 
+public abstract class Person 
 {
-    private static final long serialVersionUID = 1L;
-    private String Fname;
-    private String Lname;
-    private String Gender;
-    private String Address;
-    private String State;
-    private String Email;
-    private String Password;
-    private String PhoneNumber;
-    private PaymentMethod MyMethod;
+	private int id;
+    private String fName;
+    private String lName;
+    private boolean gender;
+    private String address;
+    private String state;
+    private String email;
+    private String password;
+    private String phoneNumber;
+    private PaymentMethod paymentMethod;
     private String Pic;
-    public Person() 
-    {
     
-    }
-
-    public String getPic() {
-        return this.Pic;
-    }
-
-    public void setPic(String Pic) {
-        this.Pic = Pic;
-    }
-
-    public PaymentMethod getMyMethod() {
-        return this.MyMethod;
-    }
-
-    public void setMyMethod(PaymentMethod MyMethod) {
-        this.MyMethod = MyMethod;
-    }
-    public void setFname(String Fname)
-    {
-        this.Fname=Fname;
-    }
-    public void setLname(String Lname)
-    {
-        this.Lname=Lname;
-    }
-    public void setPhoneNumber(String PhoneNumber)
-    {
-        this.PhoneNumber=PhoneNumber;
-    }
-    public void setGender(String Gender)
-    {
-        this.Gender=Gender;
-    }
-    public void setAddress(String Address)
-    {
-        this.Address=Address;
-    }
-    public void setState(String State) 
-    {
-        this.State=State;
-    }
-    public void setEmail(String Email)
-    {
-        this.Email=Email;
-    }
-    public void setPassword(String Password)
-    {
-        this.Password=Password;
-    }
-    public String getFname() 
-    {
-        return this.Fname;
-    }
-    public String getLname() 
-    {
-        return this.Lname;
-    }
-    public String getPhoneNumber() 
-    {
-        return this.PhoneNumber;
-    }
-    public String getGender()
-    {
-        return this.Gender;
-    }
-    public String getAddress()
-    {
-        return this.Address;
-    }
-    public String getState()
-    {
-        return this.State;
-    }
-    public String getEmail()
-    {
-        return this.Email;
-    }
-    public String getPassword()
-    {
-        return this.Password;
-    }
-    public ArrayList<CarForRent> searchCarRent(String CarName){
+    public int getId() {
+		return this.id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getfName() {
+		return this.fName;
+	}
+	public void setfName(String fName) {
+		this.fName = fName;
+	}
+	public String getlName() {
+		return this.lName;
+	}
+	public void setlName(String lName) {
+		this.lName = lName;
+	}
+	public boolean getGender() {
+		return this.gender;
+	}
+	public void setGender(boolean gender) {
+		this.gender = gender;
+	}
+	public String getAddress() {
+		return this.address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public String getState() {
+		return this.state;
+	}
+	public void setState(String state) {
+		this.state = state;
+	}
+	public String getEmail() {
+		return this.email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public String getPassword() {
+		return this.password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	public String getPhoneNumber() {
+		return this.phoneNumber;
+	}
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+	public PaymentMethod getPaymentMethod() {
+		return this.paymentMethod;
+	}
+	public void setPaymentMethod(PaymentMethod paymentMethod) {
+		this.paymentMethod = paymentMethod;
+	}
+	public String getPic() {
+		return this.Pic;
+	}
+	public void setPic(String pic) {
+		this.Pic = pic;
+	}
+	public ArrayList<CarForRent> searchCarRent(String CarName){
         return FileManager.loadCarRent(CarName);
     }
     public ArrayList<CarForSell> searchCarSell(String  CarName){

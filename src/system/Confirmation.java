@@ -1,18 +1,19 @@
 package system;
 
-import car.CarForSell;
-import person.Person;
-import person.User;
-
-
-
-
 public class Confirmation {
     private static final String Email="carrentproject2016@gmail.com";
     private static final String Password="carrentpassword";
+	public static void accountConfirmation(String string) {
+		// TODO Auto-generated method stub
+		
+	}
+	public static void editConfirmation(String email2, String string) {
+		// TODO Auto-generated method stub
+		
+	}
   
     
-
+/*
     public static void sellConfirmation(String Email) {
         String[] to = {"",Email};
         EmailSender.sendMail(Confirmation.Email, Confirmation.Password, "Your Car has been sold.", to);
@@ -92,5 +93,5 @@ public class Confirmation {
         EmailSender.sendMail(Confirmation.Email,Confirmation.Password, "Please wait for your car to be approved.", to);
 
     }
-    
+    */
 }
