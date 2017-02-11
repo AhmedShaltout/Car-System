@@ -58,9 +58,9 @@ public abstract class DB {
 		return false;
 	}
 
-	public static String passwordOf(String email) {
+	public static boolean passwordOf(String email) {
 		// TODO Auto-generated method stub
-		return null;
+		return false;
 	}
 
 	public static boolean addCarFeedback(int id, int carId, String feedback, String string) {

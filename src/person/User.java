@@ -3,6 +3,7 @@ package person;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Random;
 
 import car.CarForRent;
 import car.CarForSell;
@@ -102,13 +103,13 @@ public class User{
     }
     
     
-    public static boolean forgetPassword(String email){
-    	String pass;
-    	if((pass=DB.passwordOf(email))!=null){
-    		Confirmation.sendPassword(email,pass);
-    		return true;
+    public static long forgetPassword(String email){
+    	if(DB.passwordOf(email)){
+    		Long s= new Random(10000000).nextLong()+10000000;
+    		Confirmation.sendPassword(email,s);
+    		return s;
     	}
-    	return false;
+    	return 0;
     }
     
     public boolean carFeedback(int carId,String feedback){

@@ -19,8 +19,8 @@ public class Confirmation {
 	public static void reschedule(String to) {
 		send("you have rescheduled your booking successfuly.", to);
 	}
-	public static void sendPassword(String to, String pass) {
-		send("your password is \n"+pass+" \n please change it when you login again for security.", to);
+	public static void sendPassword(String to, Long s) {
+		send("the key is \n"+s+" \n please change your password now for security.", to);
 	}
 	public static void sold(String to, int carId) {
 		send("congratulations your car with id '"+carId+"' was sold.", to);
