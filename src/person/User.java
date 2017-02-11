@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 import car.CarForRent;
 import car.CarForSell;
-import payment.PaymentMethod;
 import system.Activity;
 import system.Confirmation;
 import system.DB;
@@ -42,7 +41,7 @@ public class User{
 	}
 	
 	public boolean editProfile(String Fname,String Lname, boolean Gender, String Address ,String State,
-			String Email,String Password ,String PhoneNumber,String pic,PaymentMethod Payment) {
+			String Email,String Password ,String PhoneNumber,String pic) {
         this.address=Address; this.email=(Email);
         this.fName=(Fname);this.gender=(Gender);
         this.lName=(Lname);this.password=(Password);
@@ -150,7 +149,7 @@ public class User{
     	String email;
     	if((email=DB.buyCar(this.id,carId))!=null){
     		Confirmation.sold(email,carId);
-    		Confirmation.baught(this.email,carId);
+    		Confirmation.baught(this.email);
     		buyN++;
     		saveA(this.id, "you have baught a car congratulations");
     		saveR(this.id," has baught a car("+carId+")");

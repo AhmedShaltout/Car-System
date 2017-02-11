@@ -123,9 +123,9 @@ public abstract class DB {
 		return null;
 	}
 
-	public static boolean acceptForSell(int carId) {
+	public static String acceptForSell(int carId) {
 		// TODO Auto-generated method stub
-		return false;
+		return null;
 	}
 
 	public static float getCompanyRate() {
@@ -166,6 +166,21 @@ public abstract class DB {
 	public static boolean deleteCarForRent(int id) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	public static boolean saveCarForSell(CarForSell carForSell) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public static boolean saveCarForRent(CarForRent carForRent) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public static ArrayList<String> emails() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

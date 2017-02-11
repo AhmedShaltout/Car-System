@@ -44,7 +44,12 @@ public abstract class Admin{
     }
     
     public boolean makeCarAvailable(int carId){
-    	return DB.acceptForSell(carId);
+    	String email;
+    	if((email=DB.acceptForSell(carId))!=null){
+    		Confirmation.acceptedForSell(email);
+    		return true;
+    	}
+    	return false;
     }
     
     public  float getCompanyRate() {

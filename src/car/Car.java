@@ -1,129 +1,76 @@
 package car;
 
-import java.io.Serializable;
+public abstract class Car{
 
-import payment.PaymentMethod;
-import system.About;
-
-public abstract class Car implements Serializable{
-
-    private String Image; //Path
-    private int CarID;
+    private int carId;
+    private String image;
     private String motor;
-    private String Color;
-    private float Speed;
-    private float AvailableKM;
-    private Short Doors;
-    private String AboutCar;
-    private String CarType;
-    private String ModelType;
-    private String Name;
-    int 
+    private String color;
+    private float speed;
+    private Short doors;
+    private String about;
+    private String model;
+    private String type;
+    private String name;
+    private int cc;
     
     public Car() {
-        this.motor=new Engine();
-        this.AboutCar=new About();
-        this.Color="";
-        this.Speed=0;
-        this.AvailableKM=0.0;
-        this.Doors=0;
-        this.CarType="";
-        this.ModelType="";
-        this.Name="";
         
     }
-    public void editCarProfile(String Image,Engine motor,String Color,float Speed,double AvailableKM,int Doors,About AboutCar,String CarType,String ModelType,String Name){
-        this.Image=Image;
-        this.motor=motor;
-        this.Speed=Speed;
-        this.AvailableKM=AvailableKM;
-        this.AboutCar=AboutCar;
-        this.CarType=CarType;
-        this.ModelType=ModelType;
-    }
-    public PaymentMethod getMyMoney() {
-        return this.MyMoney;
+    
+    public void editCarProfileForDB(String image,String motor,String color,float speed,Short doors,
+    		String about,String model,String type,String name,int cc,int carId){
+    	this.image=image;this.model=model;this.motor=motor;this.color=color;this.speed=speed;
+    	this.about=about;this.model=model;this.type=type;this.name=name;this.cc=cc;this.carId=carId;
     }
     
-    public void setMyMoney(PaymentMethod MyMoney) {
-        this.MyMoney = MyMoney;
+    public void editCarProfile(String image,String motor,String color,float speed,Short doors,
+    		String about,String model,String type,String name,int cc){
+    	this.image=image;this.model=model;this.motor=motor;this.color=color;this.speed=speed;
+    	this.about=about;this.model=model;this.type=type;this.name=name;this.cc=cc;
     }
     
-    public String getCarType() {
-        return this.CarType;
-    }
-    
-    public void setCarType(String CarType) {
-        this.CarType = CarType;
-    }
-    
-    public int getDoors() {
-        return this.Doors;
-    }
-    
-    public void setDoors(int Doors) {
-        this.Doors = Doors;
-    }
-    
-    public void setCarName(String Name){
-        this.Name=Name;
-    }
-    public String getCarName(){
-        return this.Name;
-    }
-    public void setImage(String Image){
-        this.Image=Image;
-    }
-    public String getImage(){
-        return this.Image;
-    }
-    public void addEngine(Engine NewEngine){
-        this.motor=NewEngine;
-    }
-    public void addAbout(About NewAboutCar){
-        this.AboutCar=NewAboutCar;
-    }
-    public void setColor(String NewColor) {
-        this.Color=NewColor;
-    }
-
-    public void setSpeed(int NewSpeed) {
-        this.Speed=NewSpeed;
-    }
-
-    public void setAvailableKM(int NewAvailableKM) {
-        this.AvailableKM=NewAvailableKM;
-    }
-
-    public String getColor() {
-        return this.Color;
-    }
-
-    public float getSpeed() {
-        return this.Speed;
-    }
-
-    public double getAvailbleKM() {
-        return this.AvailableKM;
-    }
-
-    public void setModelType(String NewModelType) {
-        this.ModelType=NewModelType;
-    }
-
-    public String getModelType() {
-        return this.ModelType;
-    }
-    public int getID(){
-        return this.CarID;
-    }
-    public void setID(int ID){
-        this.CarID=ID;
-    }
-    public About getAbout(){
-        return this.AboutCar;
-    }
-    public Engine getEngine(){
-        return this.motor;
-    }
+	public int getCarId() {
+		return this.carId;
+	}
+	
+	public String getImage() {
+		return this.image;
+	}
+	
+	public String getMotor() {
+		return this.motor;
+	}
+	
+	public String getColor() {
+		return this.color;
+	}
+	
+	public float getSpeed() {
+		return this.speed;
+	}
+	
+	public Short getDoors() {
+		return this.doors;
+	}
+	
+	public String getAbout() {
+		return this.about;
+	}
+	
+	public String getModel() {
+		return this.model;
+	}
+	
+	public String getType() {
+		return this.type;
+	}
+	
+	public String getName() {
+		return this.name;
+	}
+	
+	public int getCc() {
+		return this.cc;
+	}
 }
