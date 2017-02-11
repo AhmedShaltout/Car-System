@@ -7,19 +7,18 @@ import system.About;
 
 public abstract class Car implements Serializable{
 
-    private static final long serialVersionUID = 1L;
     private String Image; //Path
     private int CarID;
-    private Engine motor;
+    private String motor;
     private String Color;
     private float Speed;
-    private double AvailableKM;
-    private int Doors;
-    private About AboutCar;
+    private float AvailableKM;
+    private Short Doors;
+    private String AboutCar;
     private String CarType;
     private String ModelType;
     private String Name;
-    private PaymentMethod MyMoney;
+    int 
     
     public Car() {
         this.motor=new Engine();

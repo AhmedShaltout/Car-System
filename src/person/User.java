@@ -1,214 +1,293 @@
 package person;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import car.CarForRent;
 import car.CarForSell;
-import car.RentFilter;
 import payment.PaymentMethod;
 import system.Activity;
-import system.Book;
 import system.Confirmation;
 import system.DB;
-import system.FileManager;
-import system.Message;
-import system.Report;
 
-public class User extends Person {
-    private Message Message;
-    private int RentingNumber;
-    private int BuyingNumber;
-    private int SellingNumber;
-    private boolean firstEdit;
+
+public class User{
+    private int id;
+    private String fName;
+    private String lName;
+    private boolean gender;
+    private String address;
+    private String state;
+    private String email;
+    private String password;
+    private String phoneNumber;
+    private String pic;
+    private int rentN;
+    private int buyN;
+    private int sellN;
 
 	public User() {
-        this.firstEdit = true;
-        this.Message=new Message();
-        this.BuyingNumber=0;
-        this.SellingNumber=0;
-        this.RentingNumber=0;
+		this.rentN=0;
+		this.buyN=0;
+		this.sellN=0;
     }
 	
-	public int getRentingNumber() {
-		return RentingNumber;
+	public User(int id,String fName,String lName,boolean gender,String address,String state,String email,
+			String password,String phoneNumber,String pic,int rentN,int buyN,int sellN){
+		this.address= address;this.email=email;this.fName=fName;
+		this.gender= gender;this.lName=lName;this.password=password;
+		this.phoneNumber=phoneNumber;this.state=state;this.pic=pic;
+		this.id=id;this.rentN=rentN;this.buyN=buyN;this.sellN=sellN;
+	}
+	
+	public boolean editProfile(String Fname,String Lname, boolean Gender, String Address ,String State,
+			String Email,String Password ,String PhoneNumber,String pic,PaymentMethod Payment) {
+        this.address=Address; this.email=(Email);
+        this.fName=(Fname);this.gender=(Gender);
+        this.lName=(Lname);this.password=(Password);
+        this.phoneNumber=(PhoneNumber);
+        this.state=(State);this.pic=(pic);
+        Confirmation.accountConfirmation(this.email,Fname+" "+Lname);
+        saveA(this.id, "Welcome to our system.");
+        return DB.saveClient(this);
+    }
+    private void updateUser(User user){
+    	new Thread(new Runnable() {
+			@Override
+			public void run() {
+		    	DB.updateClient(user);
+			}
+		});
+    }
+	public boolean sellCar(CarForSell sellThisCar){
+		if(DB.addCarForSell(this.id,sellThisCar)){
+	        saveA(this.id,"you have added a car for sell and waiting for admin approval");
+	        saveR(this.id," has added a car to be sold by "+sellThisCar.getCarPrice()+" $");
+	        this.sellN++;
+	        Confirmation.waitingForApproval(this.email);
+	        updateUser(this);
+	        return true;
+		}
+        return false;
+    }
+	public boolean bookCar(int carId,SimpleDateFormat from, SimpleDateFormat to){
+		if(DB.rentThis(this.id,id,from,to)){
+			saveA(this.id, "you have rented a new car from: "+from+"  to: "+to+"");
+			saveR(this.id, " has rented a car ("+id+") from: "+from+"  to: "+to+"");
+			Confirmation.rent(this.email);
+			this.rentN++;
+			updateUser(this);
+			return true;
+		}
+		return false;
+	}
+    public boolean unbookCar(int carID,SimpleDateFormat from,SimpleDateFormat to){
+    	if(DB.unbookCar(this.id,carID,from,to)){
+    		this.rentN--;
+    		saveA(this.id, "you have unbooked a car sucessfuly");
+    		saveR(this.id," has unbooked car:("+carID+")");
+    		Confirmation.unbook(this.email);
+    		updateUser(this);
+    		return true;
+    	}
+    	return false;
+    }
+    
+    public boolean rescheduleCarRent(int carId,SimpleDateFormat Ufrom,SimpleDateFormat Uto,SimpleDateFormat Bfrom, SimpleDateFormat Bto) {
+    	if(DB.reschaduleCar(this.id,carId,Ufrom,Uto,Bfrom,Bto)){
+    		saveA(this.id,"you have rescedualed your book sucessfuly");
+    		saveR(this.id," has rescheduled a rent car(+carId+) to "+Bfrom+""+Bto+"");
+    		Confirmation.reschedule(this.email);
+    		return true;
+    	}
+    	return false;
+    }
+    
+    
+    public static boolean forgetPassword(String email){
+    	String pass;
+    	if((pass=DB.passwordOf(email))!=null){
+    		Confirmation.sendPassword(email,pass);
+    		return true;
+    	}
+    	return false;
+    }
+    
+    public boolean carFeedback(int carId,String feedback){
+    	if(DB.addCarFeedback(this.id,carId,feedback,LocalDateTime.now().toLocalDate().toString())){
+    		saveA(this.id,"your feedback for the car was sent successfuly");
+    		return true;
+    	}
+    	return false;
+    }
+    
+    public boolean companyFeedback(String feedback){
+    	if(DB.addCompanyFeedback(this.id,feedback,LocalDateTime.now().toLocalDate().toString())){
+    		saveA(this.id, "your feedback for the company was sent successfuly");
+    		return true;
+    	}
+    	return false;
+    }
+    
+    public boolean carRate(int carId,float rate){
+    	if(DB.addCarRate(carId,rate)){
+    		saveA(this.id, "your rate for the car was added successfuly");
+    		return true;
+    	}
+    	return false;
+    }
+    
+    public boolean companyRate(float rate){
+    	if(DB.addCompanyRate(rate)){
+    		saveA(this.id, "your rate for the company was added successfly");
+    		return true;
+    	}
+    	return false;
+    }
+    
+    public boolean buyThis(int carId){
+    	String email;
+    	if((email=DB.buyCar(this.id,carId))!=null){
+    		Confirmation.sold(email,carId);
+    		Confirmation.baught(this.email,carId);
+    		buyN++;
+    		saveA(this.id, "you have baught a car congratulations");
+    		saveR(this.id," has baught a car("+carId+")");
+    		DB.updateClient(this);
+    		return true;
+    	}
+    	return false;
+    }
+
+    public ArrayList<CarForRent> bookedCars(){
+    	return DB.myBookedCars(this.id);
+    }
+    
+    public ArrayList<Activity> recentActivity(){
+    	return DB.userActivity(this.id);
+    }
+    
+    private void saveA(int id,String action){
+		new Thread(new Runnable() {
+		@Override
+		public void run() {
+			DB.saveActivity(id,action,LocalDateTime.now().toLocalDate().toString());
+		}
+		});
+		
+	}
+	private void saveR(int id,String  action){
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				DB.saveReport(id,action,LocalDateTime.now().toLocalDate().toString());
+			}
+		});
+	}
+    
+    
+    public int getId() {
+		return this.id;
+	}
+    
+	public String getfName() {
+		return this.fName;
 	}
 
-	public int getBuyingNumber() {
-		return BuyingNumber;
+	public void setfName(String fName) {
+		this.fName = fName;
+		updateUser(this);
+		saveA(this.id, "you have updated your first name to be "+fName+"");
 	}
 
+	public String getlName() {
+		return this.lName;
+	}
+
+	public void setlName(String lName) {
+		this.lName = lName;
+		updateUser(this);
+		saveA(this.id, "you have updated your last name to be "+lName+"");
+	}
+
+	public boolean getGender() {
+		return this.gender;
+	}
+
+	public String getAddress() {
+		return this.address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+		updateUser(this);
+		saveA(this.id, "you have updated your address to be "+address+"");
+	}
+
+	public String getState() {
+		return this.state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+		updateUser(this);
+		saveA(this.id, "you have updated your state to be "+state+"");
+	}
+
+	public String getEmail() {
+		return this.email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+		updateUser(this);
+		saveA(this.id, "you have updated your Email to be "+email+"");
+	}
+
+	public String getPassword() {
+		return this.password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+		updateUser(this);
+		saveA(this.id, "you have updated your password");
+	}
+
+	public String getPhoneNumber() {
+		return this.phoneNumber;
+	}
+
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+		updateUser(this);
+		saveA(this.id, "you have updated your phone number to be "+phoneNumber+"");
+	}
+
+	public String getPic() {
+		return this.pic;
+	}
+
+	public void setPic(String pic) {
+		this.pic = pic;
+		updateUser(this);
+		saveA(this.id, "you have updated your profile picture");
+	}
+
+	public int getRentN() {
+		return this.rentN;
+	}
+
+	public int getBuyN() {
+		return this.buyN;
+	}
+	
 	public int getSellingNumber() {
-		return SellingNumber;
+		return this.sellN;
 	}
 
-	public boolean isFirstEdit() {
-		return firstEdit;
-	}
-	
-    public boolean editProfile(String Fname,String Lname, boolean Gender, String Address ,String State, String Email,String Password ,String PhoneNumber,String Pic,PaymentMethod Payment) {
-        this.setAddress(Address);
-        this.setEmail(Email);
-        this.setfName(Fname);
-        this.setGender(Gender);
-        this.setlName(Lname);
-        this.setPassword(Password);
-        this.setPhoneNumber(PhoneNumber);
-        this.setState(State);
-        this.setPaymentMethod(Payment);
-        this.setPic(Pic);
-        if(this.firstEdit){
-            Confirmation.accountConfirmation(Fname+" "+Lname);
-            new Activity(true,this.getId(), "Welcome to our system.");
-            this.firstEdit=false;
-            return DB.saveClient(this);
-        }
-        else{
-        	Confirmation.editConfirmation(Email,Fname+" "+Lname);
-        	new Activity(true,this.getId(), "you have updated your personal info.");
-    		return DB.updateClient(this);
-        }
-    }
-    
-	public void sellCar(CarForSell sellThisCar){
-        new Activity(true,this.getId(),"you have added a car for sell and waiting for admin approval");
-        new Activity(false,this.getId()," has added a car to be sold by "+sellThisCar.getCarPrice()+" $");
-        this.SellingNumber++;
-        sellThisCar.waitingForApproval();
-    }
-	
-    public void unbookCar(CarForRent car){
-        Book BookedFrom=car.getBookedFrom();
-        Book BookedTo=car.getBookedTo();
-        float CurrentMoney=CurrentCar.getPricePerH()*(CurrentCarBookedTo.getFullHours()-CurrentCarBookedFrom.getFullHours());
-        CurrentCar.unbookCar(CurrentCarBookedFrom,CurrentCarBookedTo);
-        CurrentCar.getMyMoneyBack(this.getMyMethod(),CurrentMoney);
-        Confirmation.confirmUnbookCar(this);
-        if(this.MyDriver.get(IndexOfCar)!=null){
-            this.unbookDriver(IndexOfCar);
-        }
-        this.RentedCar.remove(CurrentCar);
-        Calendar cal= Calendar.getInstance();
-        
-        Report report = new Report(this.getFname(),"Has unbooked his car",CurrentMoney,cal.get(Calendar.DATE),cal.get(Calendar.MONTH)+1);
-        this.RecentActivity.append(this.getFname()).append(" ").append("Has unbooked his car").append(" ").append(CurrentMoney).append("   ").append(cal.get(Calendar.DATE)).append("\\").append(cal.get(Calendar.MONTH)+1).append("\n");
-        this.MyActivity.add(report);
-        this.RentingNumber--;
-    }
-    
-
-    public void rescheduleCarRent(int IndexOfCar) {
-        this.unbookCar(IndexOfCar);
-        new RentFilter(this); 
-    }
-    
-    
-    public static void forgetPassword(String Email){
-        User ThisUser=FileManager.loadUsers(Email);
-        Confirmation.forgetPasswordConfirmation(ThisUser);
-        FileManager.saveUsers(ThisUser);
-    }
-    
-    
-    public void sendFeedback(Boolean ForCompany , String feedback , int IndexOfCar) {
-        Calendar cal= Calendar.getInstance();
-        Admin a=FileManager.loadAdmin();
-        if(ForCompany){
-            a.setFeedbackForCompany(this.getFname()+"\t"+this.getEmail()+"\n"+feedback+"\n"+cal.getTime()+"\n");
-            FileManager.saveAdmin(a);
-        }
-        else{
-            this.RentedCar.get(IndexOfCar).setFeedbackForCar(this.getFname()+"\t"+this.getEmail()+"\n"+feedback+"\n"+cal.getTime()+"\n");
-        }
-        this.RecentActivity.append(this.getFname()).append(" ").append("Has sent feedback").append(" ").append(cal.get(Calendar.DATE)).append("\\").append(cal.get(Calendar.MONTH)+1).append("\n");
-    }
-    
-    public void rate(Boolean ForCompany ,float Rate,int IndexOfCar) {
-        if(!ForCompany)
-            this.RentedCar.get(IndexOfCar).addRate(Rate);
-        else{
-            Admin a=FileManager.loadAdmin();
-            a.addRateForCompany(Rate);
-            FileManager.saveAdmin(a);
-        }
-            
-        
-        Calendar cal= Calendar.getInstance();
-        this.RecentActivity.append(this.getFname()).append(" ").append("Has rated").append(" ").append(cal.get(Calendar.DATE)).append("\\").append(cal.get(Calendar.MONTH)+1).append("\n");    
-    }
-    
-    public void sendMessage(String Message){
-        this.Message.sendNewMessage(this , Message);
-        Calendar cal= Calendar.getInstance();
-        this.RecentActivity.append(this.getFname()).append(" ").append("Has sent message").append(" ").append(cal.get(Calendar.DATE)).append("\\").append(cal.get(Calendar.MONTH)+1).append("\n");
-    }
-    
-    public void rentThis(CarForRent RentedCar){
-        this.RentedCar.add(RentedCar);
-        Book CurrentCarBookedFrom=RentedCar.getBookedFrom().get(RentedCar.getBookedFrom().size());
-        Book CurrentCarBookedTo=RentedCar.getBookedTo().get(RentedCar.getBookedTo().size());
-        float CurrentMoeny=(CurrentCarBookedTo.getFullHours()-CurrentCarBookedFrom.getFullHours()) *RentedCar.getPricePerH();
-        RentedCar.Pay(this.getMyMethod(),CurrentCarBookedTo.getFullHours()-CurrentCarBookedFrom.getFullHours());
-        Confirmation.rentConfirmation(this.getEmail());
-        this.RentingNumber++;
-        
-        Calendar cal= Calendar.getInstance();
-        this.RecentActivity.append(this.getFname()).append(" ").append("Has rented car").append(" ").append(CurrentMoeny).append(" ").append(cal.get(Calendar.DATE)).append("\\").append(cal.get(Calendar.MONTH)+1).append("\n");
-        Report report = new Report(this.getFname(),"Has rented car",CurrentMoeny,cal.get(Calendar.DATE),cal.get(Calendar.MONTH)+1);
-        this.MyActivity.add(report);
-    }
-    
-    
-    public void buyThis(CarForSell BuyThisCar){
-        BuyThisCar.Pay(this.getMyMethod());
-        BuyThisCar.sellConfirmation();
-        Confirmation.buyConfirmation(BuyThisCar);
-        BuyThisCar.sold();
-        Calendar cal= Calendar.getInstance();
-        Report report = new Report(this.getFname(),"Has baught car",BuyThisCar.getCarPrice(),cal.get(Calendar.DATE),cal.get(Calendar.MONTH)+1);
-        this.RecentActivity.append(this.getFname()).append(" ").append("Has baught car").append(" ").append(BuyThisCar.getCarPrice()).append(" ").append(cal.get(Calendar.DATE)).append("\\").append(cal.get(Calendar.MONTH)+1).append("\n");
-        this.MyActivity.add(report);
-        this.BuyingNumber++;
-    }
-    
-    public ArrayList<CarForRent> getBookedCars(){
-        Calendar cal= Calendar.getInstance();
-        for(CarForRent CurrentCar:this.RentedCar){
-            Book CurrentCarBookedFrom=CurrentCar.getBookedFrom().get(CurrentCar.getBookedFrom().size()); 
-            if(CurrentCarBookedFrom.getDay()<cal.get(Calendar.DATE)||CurrentCarBookedFrom.getHour()<cal.get(Calendar.HOUR_OF_DAY)){
-                this.MyDriver.remove(this.RentedCar.indexOf(CurrentCar));
-                this.RentedCar.remove(CurrentCar);
-            }
-        }
-        return this.RentedCar;
-    }
-    public ArrayList<Driver> getBookedDrivers(){
-        return this.MyDriver;
-    }
-    public StringBuilder gotAMessage(){
-        if(this.Message.FromUser())
-            return this.Message.viewMessages();
-        return null;
-    }
-    public Message viewMessages(){
-        return this.Message;
-    }
-    public StringBuilder viewRecentActivity(){
-        return this.RecentActivity;
-    }
-    public ArrayList<Report> viewLog(){
-        return this.MyActivity;
-    }
-    void setDoYouWantADriver(Boolean Choice,int IndexOfCar){
-        if(Choice){
-            this.bookDriver(IndexOfCar);
-        }
-        else{
-            this.MyDriver.add(IndexOfCar, null);
-        }
-    }
-    
-    private void saveActivity(int id, String string) {
-		DB.saveUserActivity(id,string);
+	public void setSellN(int sellN) {
+		this.sellN = sellN;
 	}
 }

@@ -3,11 +3,44 @@ package system;
 public class Confirmation {
     private static final String Email="carrentproject2016@gmail.com";
     private static final String Password="carrentpassword";
-	public static void accountConfirmation(String string) {
+    
+	public static void accountConfirmation(String email, String string2) {
 		// TODO Auto-generated method stub
 		
 	}
-	public static void editConfirmation(String email2, String string) {
+	public static void editConfirmation(String email, String string) {
+		// TODO Auto-generated method stub
+		
+	}
+	public static void waitingForApproval(String email2) {
+		// TODO Auto-generated method stub
+		
+	}
+	public static void rent(String email2) {
+		// TODO Auto-generated method stub
+		
+	}
+	public static void unbook(String email2) {
+		// TODO Auto-generated method stub
+		
+	}
+	public static void reschedule(String email2) {
+		// TODO Auto-generated method stub
+		
+	}
+	public static void sendPassword(String email2, String pass) {
+		// TODO Auto-generated method stub
+		
+	}
+	public static void sold(String email2, int carId) {
+		// TODO Auto-generated method stub
+		
+	}
+	public static void baught(String email2, int carId) {
+		// TODO Auto-generated method stub
+		
+	}
+	public static void sendMessage(String email, String message2) {
 		// TODO Auto-generated method stub
 		
 	}
