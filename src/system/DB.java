@@ -113,11 +113,6 @@ public abstract class DB {
 		return null;
 	}
 
-	public static boolean deleteFeedbackForCar(int carId) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 	public static ArrayList<CarForSell> waitingCars() {
 		// TODO Auto-generated method stub
 		return null;
@@ -179,6 +174,59 @@ public abstract class DB {
 	}
 
 	public static ArrayList<String> emails() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static ArrayList<CarForRent> findRentByModel(String carModel) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static ArrayList<CarForRent> findRentByName(String carName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static ArrayList<CarForRent> findRentByDate(SimpleDateFormat from, SimpleDateFormat to) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static ArrayList<CarForSell> findSellByNameAndModel(String carName, String carModel) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static ArrayList<CarForSell> findSellByModel(String carNameOrModel) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static ArrayList<CarForSell> findSellByName(String carNameOrModel) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static ArrayList<CarForRent> findRentByNameModelAndDate(String carName, String carModel,
+			SimpleDateFormat from, SimpleDateFormat to) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static ArrayList<CarForRent> findRentByModelAndDate(String carNameOrModel, SimpleDateFormat from,
+			SimpleDateFormat to) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static ArrayList<CarForRent> findRentByNameAndDate(String carNameOrModel, SimpleDateFormat from,
+			SimpleDateFormat to) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static ArrayList<CarForRent> findRentByNameAndModel(String carName, String carModel) {
 		// TODO Auto-generated method stub
 		return null;
 	}

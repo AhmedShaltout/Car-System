@@ -25,11 +25,20 @@ public class User{
     private int rentN;
     private int buyN;
     private int sellN;
-
-	public User() {
+    
+	public User(String Fname,String Lname, boolean Gender, String Address ,String State,
+			String Email,String Password ,String PhoneNumber,String pic) {
+        this.address=Address; this.email=(Email);
+        this.fName=(Fname);this.gender=(Gender);
+        this.lName=(Lname);this.password=(Password);
+        this.phoneNumber=(PhoneNumber);
+        this.state=(State);this.pic=(pic);
 		this.rentN=0;
 		this.buyN=0;
 		this.sellN=0;
+        Confirmation.accountConfirmation(this.email,Fname+" "+Lname);
+        saveA(this.id, "Welcome to our system.");
+        DB.saveClient(this);
     }
 	
 	public User(int id,String fName,String lName,boolean gender,String address,String state,String email,
@@ -40,17 +49,6 @@ public class User{
 		this.id=id;this.rentN=rentN;this.buyN=buyN;this.sellN=sellN;
 	}
 	
-	public boolean editProfile(String Fname,String Lname, boolean Gender, String Address ,String State,
-			String Email,String Password ,String PhoneNumber,String pic) {
-        this.address=Address; this.email=(Email);
-        this.fName=(Fname);this.gender=(Gender);
-        this.lName=(Lname);this.password=(Password);
-        this.phoneNumber=(PhoneNumber);
-        this.state=(State);this.pic=(pic);
-        Confirmation.accountConfirmation(this.email,Fname+" "+Lname);
-        saveA(this.id, "Welcome to our system.");
-        return DB.saveClient(this);
-    }
     private void updateUser(User user){
     	new Thread(new Runnable() {
 			@Override
@@ -165,6 +163,34 @@ public class User{
     
     public ArrayList<Activity> recentActivity(){
     	return DB.userActivity(this.id);
+    }
+    
+    public static ArrayList<CarForRent> rentFilter(String carNameOrModel , boolean byName){
+    	if(byName)
+    		return DB.findRentByName(carNameOrModel);
+    	return DB.findRentByModel(carNameOrModel);
+    }
+    public static ArrayList<CarForRent> rentFilter(SimpleDateFormat from ,SimpleDateFormat to){
+    	return DB.findRentByDate(from,to);
+    }
+    public static ArrayList<CarForRent> rentFilter(String carName,String carModel){
+    	return DB.findRentByNameAndModel(carName,carModel);
+    }
+    public static ArrayList<CarForRent> rentFilter(String carNameOrModel , boolean byName,SimpleDateFormat from ,SimpleDateFormat to){
+    	if(byName)
+    		return DB.findRentByNameAndDate(carNameOrModel,from,to);
+    	return DB.findRentByModelAndDate(carNameOrModel,from,to);
+    }
+    public static ArrayList<CarForRent> rentFilter(String carName,String carModel,SimpleDateFormat from ,SimpleDateFormat to){
+    	return DB.findRentByNameModelAndDate(carName,carModel,from,to);
+    }
+    public static ArrayList<CarForSell> sellFilter(String carNameOrModel , boolean byName){
+    	if(byName)
+    		return DB.findSellByName(carNameOrModel);
+    	return DB.findSellByModel(carNameOrModel);
+    }
+    public static ArrayList<CarForSell> sellFilter(String carName,String carModel){
+    	return DB.findSellByNameAndModel(carName,carModel);
     }
     
     private void saveA(int id,String action){
