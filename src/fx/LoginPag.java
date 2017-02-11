@@ -1,8 +1,7 @@
-package GUI;
+package fx;
 
 import CarRentSystem.CarRentSystemException;
-import CarRentSystem.FileManager;
-import Persons.User;
+import person.User;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -25,7 +24,7 @@ public class LoginPag implements EventHandler<ActionEvent>{
     Label mail,password;
     Button login,signUp,forget;
     HBox footer;
-    Stage window=new Stage();
+    Stage window;
     public LoginPag(){
         window.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
