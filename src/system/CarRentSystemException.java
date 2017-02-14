@@ -3,7 +3,7 @@ package system;
 public class CarRentSystemException{
     
     public static boolean isUserThere(String email) throws Exception{
-        if(DB.passwordOf(email)==null)
+        if(!DB.exists(email))
             throw new Exception("user not found");
         return true;
     }

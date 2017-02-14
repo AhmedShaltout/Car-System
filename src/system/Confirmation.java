@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Confirmation {
     
 	public static void accountConfirmation(String email, String string2) {
-		send("Hi "+string2+" ,\nWelcome to our system.", email);
+		send("Hi "+string2+" ,\n\nWelcome to our system.", email);
 	}
 	public static void waitingForApproval(String to) {
 		send("Your car is waiting for approval.", to);
@@ -20,7 +20,7 @@ public class Confirmation {
 		send("you have rescheduled your booking successfuly.", to);
 	}
 	public static void sendPassword(String to, Long s) {
-		send("the key is \n"+s+" \n please change your password now for security.", to);
+		send("the key is \n\n\t"+s+" \n\n please change your password now for security.", to);
 	}
 	public static void sold(String to, int carId) {
 		send("congratulations your car with id '"+carId+"' was sold.", to);
@@ -45,6 +45,6 @@ public class Confirmation {
 			public void run() {
 				EmailSender.sendMail(message, to);
 			}
-		});
+		}).start();
 	}
 }

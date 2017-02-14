@@ -10,7 +10,7 @@ import system.DB;
 
 public abstract class Admin{
 	public static boolean addCarForSell(CarForSell car){
-		return DB.addCarForSell(-1, car);
+		return DB.addCarForSell(car);
 	}
 	
 	public static boolean addCarForRent(CarForRent car){

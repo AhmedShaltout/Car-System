@@ -1,8 +1,8 @@
 package person;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 
 import car.CarForRent;
@@ -38,7 +38,6 @@ public class User{
 		this.buyN=0;
 		this.sellN=0;
         Confirmation.accountConfirmation(this.email,Fname+" "+Lname);
-        saveA(this.id, "Welcome to our system.");
         DB.saveClient(this);
     }
 	
@@ -56,10 +55,10 @@ public class User{
 			public void run() {
 		    	DB.updateClient(user);
 			}
-		});
+		}).start();
     }
 	public boolean sellCar(CarForSell sellThisCar){
-		if(DB.addCarForSell(this.id,sellThisCar)){
+		if(DB.addCarForSell(sellThisCar)){
 	        saveA(this.id,"you have added a car for sell and waiting for admin approval");
 	        saveR(this.id," has added a car to be sold by "+sellThisCar.getCarPrice()+" $");
 	        this.sellN++;
@@ -69,8 +68,8 @@ public class User{
 		}
         return false;
     }
-	public boolean bookCar(int carId,SimpleDateFormat from, SimpleDateFormat to){
-		if(DB.rentThis(this.id,id,from,to)){
+	public boolean bookCar(int carId,String from, String to){
+		if(DB.rentThis(this.id,carId,from,to)){
 			saveA(this.id, "you have rented a new car from: "+from+"  to: "+to+"");
 			saveR(this.id, " has rented a car ("+id+") from: "+from+"  to: "+to+"");
 			Confirmation.rent(this.email);
@@ -80,7 +79,7 @@ public class User{
 		}
 		return false;
 	}
-    public boolean unbookCar(int carID,SimpleDateFormat from,SimpleDateFormat to){
+    public boolean unbookCar(int carID,String from,String to){
     	if(DB.unbookCar(this.id,carID,from,to)){
     		this.rentN--;
     		saveA(this.id, "you have unbooked a car sucessfuly");
@@ -92,7 +91,7 @@ public class User{
     	return false;
     }
     
-    public boolean rescheduleCarRent(int carId,SimpleDateFormat Ufrom,SimpleDateFormat Uto,SimpleDateFormat Bfrom, SimpleDateFormat Bto) {
+    public boolean rescheduleCarRent(int carId,String Ufrom,String Uto,String Bfrom, String Bto) {
     	if(DB.reschaduleCar(this.id,carId,Ufrom,Uto,Bfrom,Bto)){
     		saveA(this.id,"you have rescedualed your book sucessfuly");
     		saveR(this.id," has rescheduled a rent car(+carId+) to "+Bfrom+""+Bto+"");
@@ -104,7 +103,7 @@ public class User{
     
     
     public static long forgetPassword(String email){
-    	if(DB.passwordOf(email)){
+    	if(DB.exists(email)){
     		Long s= new Random(10000000).nextLong()+10000000;
     		Confirmation.sendPassword(email,s);
     		return s;
@@ -113,7 +112,7 @@ public class User{
     }
     
     public boolean carFeedback(int carId,String feedback){
-    	if(DB.addCarFeedback(this.id,carId,feedback,LocalDateTime.now().toLocalDate().toString())){
+    	if(DB.addCarFeedback(this.id,carId,feedback,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))){
     		saveA(this.id,"your feedback for the car was sent successfuly");
     		return true;
     	}
@@ -121,7 +120,7 @@ public class User{
     }
     
     public boolean companyFeedback(String feedback){
-    	if(DB.addCompanyFeedback(this.id,feedback,LocalDateTime.now().toLocalDate().toString())){
+    	if(DB.addCompanyFeedback(this.id,feedback,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))){
     		saveA(this.id, "your feedback for the company was sent successfuly");
     		return true;
     	}
@@ -146,7 +145,7 @@ public class User{
     
     public boolean buyThis(int carId){
     	String email;
-    	if((email=DB.buyCar(this.id,carId))!=null){
+    	if((email=DB.buyCar(carId))!=null){
     		Confirmation.sold(email,carId);
     		Confirmation.baught(this.email);
     		buyN++;
@@ -198,18 +197,18 @@ public class User{
 		new Thread(new Runnable() {
 		@Override
 		public void run() {
-			DB.saveActivity(id,action,LocalDateTime.now().toLocalDate().toString());
+			DB.saveActivity(id,action,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 		}
-		});
+		}).start();
 		
 	}
 	private void saveR(int id,String  action){
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				DB.saveReport(id,action,LocalDateTime.now().toLocalDate().toString());
+				DB.saveReport(id,action,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 			}
-		});
+		}).start();
 	}
     
     
