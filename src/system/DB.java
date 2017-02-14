@@ -69,8 +69,8 @@ public abstract class DB {
 		editDataBase("insert into activity(id,	actionDate,	action) values("+id+", '"+date+"', '"+action+"')");
 	}
 
-	public static void saveReport(int id, String action, String date) {
-		editDataBase("insert into report(id,	actionDate,	action) values("+id+", '"+date+"', '"+action+"')");
+	public static void saveReport(String action, String date) {
+		editDataBase("insert into report(actionDate,action) values('"+date+"', '"+action+"')");
 	}
 
 	public static boolean addCarForSell(CarForSell car) {
@@ -116,12 +116,12 @@ public abstract class DB {
 		return false;
 	}
 
-	public static boolean addCarFeedback(int id, int carId, String feedback, String time) {
-		return editDataBase("insert into carfeedback(carId,id,time,feedback) values("+carId+","+id+",'"+time+"','"+feedback+"')");
+	public static boolean addCarFeedback(String email , int carId, String feedback, String time) {
+		return editDataBase("insert into carfeedback(carId,email,time,feedback) values("+carId+","+email+",'"+time+"','"+feedback+"')");
 	}
 
-	public static boolean addCompanyFeedback(int id, String feedback, String time) {
-		return editDataBase("insert into companyfeedback(id,time,feedback) values("+id+",'"+time+"','"+feedback+"')");
+	public static boolean addCompanyFeedback(String email, String feedback, String time) {
+		return editDataBase("insert into companyfeedback(email,time,feedback) values("+email+",'"+time+"','"+feedback+"')");
 	}
 
 	public static boolean addCarRate(int carId, float rate) {
@@ -144,17 +144,49 @@ public abstract class DB {
 	}
 
 	public static ArrayList<CarForRent> myBookedCars(int id) {
-		ResultSet
+		ArrayList<CarForRent> list=new ArrayList<>();
+		ResultSet fromTo= select("select * from rentedcars where id="+id+"");
+		try {
+			while(fromTo.next()){
+				ResultSet carInfo=select("select * from carforrent where carId="+fromTo.getInt("carId")+"");
+				CarForRent car;
+				if((car=careateCarRent(carInfo,fromTo.getString("rentFrom"),fromTo.getString("rentTo")))!=null)
+					list.add(car);	
+			}
+		} catch (SQLException | NullPointerException e) {}
+		return list;
+		
+	}
+
+	private static CarForRent careateCarRent(ResultSet carInfo, String from, String to) {
+		try {
+			carInfo.next();
+			CarForRent car=new CarForRent(carInfo.getFloat("pricePerH"), carInfo.getFloat("rate"), from, to);
+			car.editCarProfileForDB(carInfo.getString("image"), carInfo.getString("motor"), carInfo.getString("color"),
+					carInfo.getFloat("speed"), carInfo.getShort("doors"), carInfo.getString("about"),carInfo.getString("model") ,
+					carInfo.getString("type"),carInfo.getString("name") , carInfo.getInt("cc"), carInfo.getInt("carId"));
+			return car;
+		} catch (SQLException |NullPointerException e) {
+			return null;
+		}
 	}
 
 	public static ArrayList<Activity> userActivity(int id) {
-		// TODO Auto-generated method stub
-		return null;
+		ArrayList<Activity> list=new ArrayList<>();
+		ResultSet result= select("select * from activity where id="+id+"");
+		try {
+			while(result.next()){
+				list.add(new Activity(result.getString("action"),result.getString("actionDate")));
+			}
+		} catch (SQLException | NullPointerException e) {}
+		return list;
 	}
 
 	public static ArrayList<String> seeCompanyFeedback() {
-		// TODO Auto-generated method stub
-		return null;
+		ArrayList<Feedback>feed= new ArrayList<>();
+		ResultSet result=select("select * from companyfeedback ordered by time");
+		while(result.next())
+			feed.add(new Feedback(result.getString("feedback"), result.getString("email")),result.getString("time"));
 	}
 
 	public static ArrayList<String> seeCarFeedback(int carID) {

@@ -60,7 +60,7 @@ public class User{
 	public boolean sellCar(CarForSell sellThisCar){
 		if(DB.addCarForSell(sellThisCar)){
 	        saveA(this.id,"you have added a car for sell and waiting for admin approval");
-	        saveR(this.id," has added a car to be sold by "+sellThisCar.getCarPrice()+" $");
+	        saveR(""+this.id+" has added a car to be sold by "+sellThisCar.getCarPrice()+" $");
 	        this.sellN++;
 	        Confirmation.waitingForApproval(this.email);
 	        updateUser(this);
@@ -71,7 +71,7 @@ public class User{
 	public boolean bookCar(int carId,String from, String to){
 		if(DB.rentThis(this.id,carId,from,to)){
 			saveA(this.id, "you have rented a new car from: "+from+"  to: "+to+"");
-			saveR(this.id, " has rented a car ("+id+") from: "+from+"  to: "+to+"");
+			saveR(""+this.id+" has rented a car ("+id+") from: "+from+"  to: "+to+"");
 			Confirmation.rent(this.email);
 			this.rentN++;
 			updateUser(this);
@@ -83,7 +83,7 @@ public class User{
     	if(DB.unbookCar(this.id,carID,from,to)){
     		this.rentN--;
     		saveA(this.id, "you have unbooked a car sucessfuly");
-    		saveR(this.id," has unbooked car:("+carID+")");
+    		saveR(""+this.id+" has unbooked car:("+carID+")");
     		Confirmation.unbook(this.email);
     		updateUser(this);
     		return true;
@@ -94,7 +94,7 @@ public class User{
     public boolean rescheduleCarRent(int carId,String Ufrom,String Uto,String Bfrom, String Bto) {
     	if(DB.reschaduleCar(this.id,carId,Ufrom,Uto,Bfrom,Bto)){
     		saveA(this.id,"you have rescedualed your book sucessfuly");
-    		saveR(this.id," has rescheduled a rent car(+carId+) to "+Bfrom+""+Bto+"");
+    		saveR(""+this.id+" has rescheduled a rent car(+carId+) to "+Bfrom+""+Bto+"");
     		Confirmation.reschedule(this.email);
     		return true;
     	}
@@ -112,7 +112,7 @@ public class User{
     }
     
     public boolean carFeedback(int carId,String feedback){
-    	if(DB.addCarFeedback(this.id,carId,feedback,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))){
+    	if(DB.addCarFeedback(this.email,carId,feedback,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))){
     		saveA(this.id,"your feedback for the car was sent successfuly");
     		return true;
     	}
@@ -120,7 +120,7 @@ public class User{
     }
     
     public boolean companyFeedback(String feedback){
-    	if(DB.addCompanyFeedback(this.id,feedback,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))){
+    	if(DB.addCompanyFeedback(this.email,feedback,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))){
     		saveA(this.id, "your feedback for the company was sent successfuly");
     		return true;
     	}
@@ -150,7 +150,7 @@ public class User{
     		Confirmation.baught(this.email);
     		buyN++;
     		saveA(this.id, "you have baught a car congratulations");
-    		saveR(this.id," has baught a car("+carId+")");
+    		saveR(""+this.id+" has baught a car("+carId+")");
     		DB.updateClient(this);
     		return true;
     	}
@@ -202,11 +202,11 @@ public class User{
 		}).start();
 		
 	}
-	private void saveR(int id,String  action){
+	private void saveR(String  action){
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				DB.saveReport(id,action,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+				DB.saveReport(action,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 			}
 		}).start();
 	}
