@@ -33,7 +33,7 @@ public abstract class DB {
 		
 	}
 
-	public static boolean addCarForSell(int id, CarForSell sellThisCar) {
+	public static boolean addCarForSell(CarForSell sellThisCar) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -43,22 +43,17 @@ public abstract class DB {
 		return false;
 	}
 
-	public static boolean rentThis(int id, int id2, SimpleDateFormat from, SimpleDateFormat to) {
+	public static boolean rentThis(int id, int id2, String from, String to) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-	public static boolean unbookCar(int id, int carID, SimpleDateFormat from, SimpleDateFormat to) {
+	public static boolean unbookCar(int id, int carID, String from, String to) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-	public static boolean reschaduleCar(int carId, int carId2, SimpleDateFormat ufrom, SimpleDateFormat uto, SimpleDateFormat bfrom,SimpleDateFormat bto) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	public static boolean passwordOf(String email) {
+	public static boolean reschaduleCar(int carId, int carId2, String ufrom, String uto, String bfrom,String bto) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -83,7 +78,7 @@ public abstract class DB {
 		return false;
 	}
 
-	public static String buyCar(int id, int carId) {
+	public static String buyCar(int id) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -229,6 +224,11 @@ public abstract class DB {
 	public static ArrayList<CarForRent> findRentByNameAndModel(String carName, String carModel) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public static boolean exists(String email) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 }
