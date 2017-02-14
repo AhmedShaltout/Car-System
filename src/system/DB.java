@@ -1,7 +1,12 @@
 package system;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+
 import car.CarForRent;
 import car.CarForSell;
 import person.User;
@@ -13,79 +18,133 @@ public abstract class DB {
   AND car_id = 12345;
   true if there is a reservation in this period
  * */
+/**======================================== for connection ===================================**/
+	
+	private static Connection getConnection(){
+		try{
+			Class.forName("com.mysql.jdbc.Driver");
+			return DriverManager.getConnection("jdbc:mysql://localhost:3306/cars?useUnicode=yes&characterEncoding=UTF-8&autoReconnect=true&useSSL=false","root","");
+		}
+		catch(SQLException |ClassNotFoundException ex){
+			return null;
+		}
+	}
+	
+	/**==========================================================================================**/
+	
+	/**responsible for returning values from the database the result can be null**/
+	private static ResultSet select(String sql){
+		try{
+			return getConnection().createStatement().executeQuery(sql);
+		}catch (SQLException | NullPointerException e) {
+			return null;
+		}
+	}
+	
+	/**responsible for executing Queries if done returns true ,on the other hand false**/
+	private static boolean editDataBase(String sql){
+		try {
+			getConnection().createStatement().execute(sql);
+			return true;
+		} catch (SQLException | NullPointerException e) {
+			return false;
+		}
+	}
+	
 	public static boolean saveClient(User user) {
-		// TODO Auto-generated method stub
-		return false;
+		return editDataBase("insert into user(fName,	lName,	gender,	address,	state,	email,	password,	pic,	rentN,	buyN,	sellN) "
+				+ " values('"+user.getfName()+"',	'"+user.getlName()+"',	"+user.getGender()+",	'"+user.getAddress()+"',	'"+user.getState()+"',"
+						+ "	'"+user.getEmail()+"',	'"+user.getPassword()+"',	'"+user.getPic()+"', "+user.getRentN()+","
+								+ " "+user.getBuyN()+", "+user.getSellingNumber()+")");
 	}
 
 	public static boolean updateClient(User user) {
-		// TODO Auto-generated method stub
-		return false;
+		return editDataBase("update user set fName='"+user.getfName()+"',	lName= '"+user.getlName()+"',	gender= "+user.getGender()+","
+				+ "	address ='"+user.getAddress()+"',	state= '"+user.getState()+"',	email= '"+user.getEmail()+"',	password = '"+user.getPassword()+"', "
+						+ "pic= '"+user.getPic()+"',	rentN=  "+user.getRentN()+",	buyN= "+user.getBuyN()+",	sellN= "+user.getSellingNumber()+" "
+								+ "where id="+user.getId()+"");
 	}
 
 	public static void saveActivity(int id, String action,String date) {
-		// TODO Auto-generated method stub
-		
+		editDataBase("insert into activity(id,	actionDate,	action) values("+id+", '"+date+"', '"+action+"')");
 	}
 
 	public static void saveReport(int id, String action, String date) {
-		// TODO Auto-generated method stub
+		editDataBase("insert into report(id,	actionDate,	action) values("+id+", '"+date+"', '"+action+"')");
+	}
+
+	public static boolean addCarForSell(CarForSell car) {
+		return editDataBase("insert into carforsell(image,motor,color,speed,doors,about,model,type,name,cc,carPrice,available,email)"
+				+ "values('"+car.getImage()+"', '"+car.getMotor()+"', '"+car.getColor()+"', "+car.getSpeed()+", "+car.getDoors()+", "
+						+ "'"+car.getAbout()+"', '"+car.getModel()+"', '"+car.getType()+"', '"+car.getName()+"', "+car.getCc()+","
+								+ ""+car.getCarPrice()+", "+car.getAvailable()+" , '"+car.getEmail()+"')");
+	}
+
+	public static boolean notRented(int carId, SimpleDateFormat from, SimpleDateFormat to) {
+		ResultSet result=select("select * from rentedcars where carId="+carId+"	and rentFrom='"+from+"' and	rentTo='"+to+"'");
+		try {
+			if(result.next())
+				return true;
+		} catch (SQLException | NullPointerException e) {}
+		return false;
 		
 	}
 
-	public static boolean addCarForSell(CarForSell sellThisCar) {
-		// TODO Auto-generated method stub
+	public static boolean rentThis(int id, int carId, String from, String to) {
+		return editDataBase("insert into rentedcars(carId,id,rentFrom,rentTo) "
+				+ "values("+id+","+carId+",'"+from+"','"+to+"')");
+	}
+
+	public static boolean unbookCar(int id, int carId, String from, String to) {
+		return editDataBase("delete from rentedcars where id="+id+" and carId="+carId+" and rentFrom='"+from+"' and rentTo= '"+to+"'");
+	}
+
+	public static boolean reschaduleCar(int id, int carId, String ufrom, String uto, String bfrom,String bto) {
+		if(!isRentedIn(carId,bfrom,bto)){
+			return editDataBase("update rentedcars set rentFrom='"+bfrom+"' , rentTo='"+bto+"' where carId="+carId+" and "
+					+ "id="+id+" and	rentFrom='"+ufrom+"' and rentTo='"+uto+"'	");
+		}
 		return false;
 	}
 
-	public static boolean notRented(int id, SimpleDateFormat from, SimpleDateFormat to) {
-		// TODO Auto-generated method stub
+	public static boolean isRentedIn(int carId, String from, String to) {
+		ResultSet result=select("select * from rentedcars where carId="+carId+" and rentFrom='"+from+"' and rentTo='"+to+"'");
+		try {
+			if(result.next())
+				return true;
+		} catch (SQLException | NullPointerException e) {}
 		return false;
 	}
 
-	public static boolean rentThis(int id, int id2, String from, String to) {
-		// TODO Auto-generated method stub
-		return false;
+	public static boolean addCarFeedback(int id, int carId, String feedback, String time) {
+		return editDataBase("insert into carfeedback(carId,id,time,feedback) values("+carId+","+id+",'"+time+"','"+feedback+"')");
 	}
 
-	public static boolean unbookCar(int id, int carID, String from, String to) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	public static boolean reschaduleCar(int carId, int carId2, String ufrom, String uto, String bfrom,String bto) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	public static boolean addCarFeedback(int id, int carId, String feedback, String string) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	public static boolean addCompanyFeedback(int id, String feedback, String string) {
-		// TODO Auto-generated method stub
-		return false;
+	public static boolean addCompanyFeedback(int id, String feedback, String time) {
+		return editDataBase("insert into companyfeedback(id,time,feedback) values("+id+",'"+time+"','"+feedback+"')");
 	}
 
 	public static boolean addCarRate(int carId, float rate) {
-		// TODO Auto-generated method stub
-		return false;
+		return editDataBase("update carforrent set rate=(rate + "+rate+")/2 where carId="+carId+"");
 	}
 
 	public static boolean addCompanyRate(float rate) {
-		// TODO Auto-generated method stub
-		return false;
+		return editDataBase("update system set rate = (rate +"+rate+")/2");
 	}
 
-	public static String buyCar(int id) {
-		// TODO Auto-generated method stub
-		return null;
+	public static String buyCar(int carId) {
+		String email = null;
+		ResultSet result= select("select email from carforsell where carId="+carId+"");
+		try {
+			result.next();
+			email=result.getString("email");
+			select("delete from carforsell where carId="+carId+"");
+		} catch (SQLException |NullPointerException e) {}
+		return email;
 	}
 
 	public static ArrayList<CarForRent> myBookedCars(int id) {
-		// TODO Auto-generated method stub
-		return null;
+		ResultSet
 	}
 
 	public static ArrayList<Activity> userActivity(int id) {
@@ -230,5 +289,5 @@ public abstract class DB {
 		// TODO Auto-generated method stub
 		return false;
 	}
-	
+
 }
