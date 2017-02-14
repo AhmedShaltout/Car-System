@@ -1,7 +1,5 @@
 package car;
 
-import system.DB;
-
 public class CarForRent extends Car {
     private float pricePerH;
     private float rate;
@@ -12,13 +10,8 @@ public class CarForRent extends Car {
     	this.pricePerH=pricePerH;this.rate=rate;this.from=from;this.to=to;
     }
     
-    public CarForRent(){
-    	
-    }
-    
-    public boolean editCarForRentProfile(float pricePerH,float rate){
+    public CarForRent(float pricePerH,float rate){
     	this.pricePerH=pricePerH;this.rate=rate;
-    	return DB.saveCarForRent(this);
     }
 
 	public float getPricePerH() {

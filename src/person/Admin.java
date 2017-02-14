@@ -6,6 +6,7 @@ import car.CarForSell;
 import system.Activity;
 import system.Confirmation;
 import system.DB;
+import system.Feedback;
 
 
 public abstract class Admin{
@@ -23,11 +24,11 @@ public abstract class Admin{
 		return DB.deleteCarForRent(id);
 	}
 	
-    public static ArrayList<String> CompanyFeedback() {
+    public static ArrayList<Feedback> CompanyFeedback() {
     	return DB.seeCompanyFeedback();
     }
     
-    public static ArrayList<String> viewCarFeedback(int CarID){
+    public static ArrayList<Feedback> viewCarFeedback(int CarID){
     	return DB.seeCarFeedback(CarID);
     }
     

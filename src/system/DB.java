@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import car.CarForRent;
@@ -12,12 +13,7 @@ import car.CarForSell;
 import person.User;
 
 public abstract class DB {
-/*
- * SELECT id FROM reservations
-	WHERE (DATE '2012-03-29', DATE '2010-04-01') OVERLAPS (start_date, stop_date)
-  AND car_id = 12345;
-  true if there is a reservation in this period
- * */
+
 /**======================================== for connection ===================================**/
 	
 	private static Connection getConnection(){
@@ -182,116 +178,200 @@ public abstract class DB {
 		return list;
 	}
 
-	public static ArrayList<String> seeCompanyFeedback() {
+	public static ArrayList<Feedback> seeCompanyFeedback() {
 		ArrayList<Feedback>feed= new ArrayList<>();
 		ResultSet result=select("select * from companyfeedback ordered by time");
-		while(result.next())
-			feed.add(new Feedback(result.getString("feedback"), result.getString("email")),result.getString("time"));
+		try {
+			while(result.next()){
+				feed.add(new Feedback(result.getString("feedback"), result.getString("email"),result.getString("time")));
+			}
+		} catch (SQLException |NullPointerException  e) {}
+		return feed;
 	}
 
-	public static ArrayList<String> seeCarFeedback(int carID) {
-		// TODO Auto-generated method stub
-		return null;
+	public static ArrayList<Feedback> seeCarFeedback(int carID) {
+		ArrayList<Feedback>feed= new ArrayList<>();
+		ResultSet result=select("select * from carfeedback where carId="+carID+" ordered by time");
+		try {
+			while(result.next()){
+				feed.add(new Feedback(result.getString("feedback"), result.getString("email"),result.getString("time")));
+			}
+		} catch (SQLException |NullPointerException  e) {}
+		return feed;
 	}
 
 	public static String emailOf(int id) {
-		// TODO Auto-generated method stub
-		return null;
+		String s=null;
+		ResultSet result= select("select email from user where id="+id+"");
+		try {
+			result.next();
+			s=result.getString("email");
+		} catch (SQLException |NullPointerException e) {}
+		return s;
 	}
 
 	public static ArrayList<CarForSell> waitingCars() {
-		// TODO Auto-generated method stub
+		ResultSet result =select("select * from carforsell where available=0 ");
+		CarForSell car;
+		ArrayList<CarForSell>list =new ArrayList<>();
+		while((car=createCarForSell(result))!=null){
+			list.add(car);
+		}
+		return list;
+	}
+
+	private static CarForSell createCarForSell(ResultSet result) {
+		try {
+			result.next();
+			CarForSell car= new CarForSell(result.getFloat("carPrice"),result.getString("email") ,result.getBoolean("available") );
+			car.editCarProfileForDB(result.getString("image"), result.getString("motor"),result.getString("color") ,result.getFloat("speed") ,
+					result.getShort("doors"),result.getString("about") ,result.getString("model") ,result.getString("type") ,result.getString("name") ,
+					result.getInt("cc"),result.getInt("carId"));
+			return car;
+		} catch (SQLException |NullPointerException e) {}
 		return null;
 	}
 
 	public static String acceptForSell(int carId) {
-		// TODO Auto-generated method stub
-		return null;
+		ResultSet result= select("select email from carforsell where carId="+carId+"");
+		String s=null;
+		try {
+			result.next();
+			s=result.getString("email");
+			editDataBase("update carforsell set available=1 where carId="+carId+"");
+		} catch (SQLException |NullPointerException e) {}
+		return s;
 	}
 
 	public static float getCompanyRate() {
-		// TODO Auto-generated method stub
-		return 0;
+		ResultSet result=select("select rate from system");
+		try {
+			result.next();
+			return result.getFloat("rate");
+		} catch (SQLException |NullPointerException e) {}
+		return -1f;
 	}
 
 	public static boolean setAboutCompany(String something) {
-		// TODO Auto-generated method stub
-		return false;
+		return editDataBase("update system set about= '"+something+"'");
 	}
 
 	public static String getAboutCompany() {
-		// TODO Auto-generated method stub
+		ResultSet result= select("select about from system");
+		try {
+			result.next();
+			return result.getString("about");
+		} catch (SQLException |NullPointerException e) {}
 		return null;
 	}
 
 	public static ArrayList<Activity> getDailyReport() {
-		// TODO Auto-generated method stub
-		return null;
+		ResultSet result= select("select * from report where actionDate >="+LocalDateTime.now().toLocalDate()+"");
+		ArrayList<Activity> list=new ArrayList<>();
+		try {
+			while(result.next()){
+				list.add(new Activity(result.getString("action"),result.getString("actionDate")));
+			}
+		} catch (SQLException |NullPointerException e) {}
+		return list;
 	}
 
 	public static ArrayList<Activity> getMonthlyReport() {
-		// TODO Auto-generated method stub
-		return null;
+		ResultSet result= select("select * from report where actionDate >="+LocalDateTime.now().minusDays(30).toLocalDate()+"");
+		ArrayList<Activity> list=new ArrayList<>();
+		try {
+			while(result.next()){
+				list.add(new Activity(result.getString("action"),result.getString("actionDate")));
+			}
+		} catch (SQLException |NullPointerException e) {}
+		return list;
 	}
 
 	public static boolean addCarForRent(CarForRent car) {
-		// TODO Auto-generated method stub
-		return false;
+		return editDataBase("insert into carforrent(image,motor,color,speed,doors,about,model,type,name,cc,pricePerH,rate)"
+				+ "values('"+car.getImage()+"', '"+car.getMotor()+"', '"+car.getColor()+"', "+car.getSpeed()+", "+car.getDoors()+""
+						+ "'"+car.getAbout()+"','"+car.getModel()+"', '"+car.getType()+"', '"+car.getName()+"', "+car.getCc()+""
+								+ ""+car.getPricePerH()+","+car.getRate()+")");
 	}
 
 	public static boolean deleteCarForSell(int id) {
-		// TODO Auto-generated method stub
-		return false;
+		return editDataBase("delete from carforsell where carId="+id+"");
 	}
 
 	public static boolean deleteCarForRent(int id) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	public static boolean saveCarForSell(CarForSell carForSell) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	public static boolean saveCarForRent(CarForRent carForRent) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	public static ArrayList<String> emails() {
-		// TODO Auto-generated method stub
-		return null;
+		return editDataBase("delete from carforrent where carId="+id+"");
 	}
 
 	public static ArrayList<CarForRent> findRentByModel(String carModel) {
-		// TODO Auto-generated method stub
-		return null;
+		ResultSet carInfo= select("select * from carforrent where model like'%"+carModel+"%'");
+		CarForRent m;
+		ArrayList<CarForRent>list= new ArrayList<>();
+		while((m=careateCarRent(carInfo, "", ""))!=null){
+			list.add(m);
+		}
+		return list;
 	}
 
 	public static ArrayList<CarForRent> findRentByName(String carName) {
-		// TODO Auto-generated method stub
-		return null;
+		ResultSet carInfo= select("select * from carforrent where name like'%"+carName+"%'");
+		CarForRent m;
+		ArrayList<CarForRent>list= new ArrayList<>();
+		while((m=careateCarRent(carInfo, "", ""))!=null){
+			list.add(m);
+		}
+		return list;
 	}
-
-	public static ArrayList<CarForRent> findRentByDate(SimpleDateFormat from, SimpleDateFormat to) {
-		// TODO Auto-generated method stub
-		return null;
+	
+	public static ArrayList<CarForRent> findRentByDate(String from, String to) {
+		ArrayList<CarForRent>list= new ArrayList<>();
+		ArrayList<Integer> unAllowed=new ArrayList<>();
+		ResultSet resultDate= select("select carId from rentedcars where ('"+from+"','"+to+"') OVERLAPS (rentFrom,rentTo)");
+		try {
+			while(resultDate.next()){
+				unAllowed.add(resultDate.getInt("carId"));
+			}
+		} catch (SQLException |NullPointerException e) {}
+		StringBuffer cond= new StringBuffer();
+		if(!unAllowed.isEmpty()){
+			cond.append(" where carId !="+unAllowed.get(0)+" ");
+			for(int x=1;x<unAllowed.size();x++)
+				cond.append(" and != "+unAllowed.get(x)+" ");
+		}
+		ResultSet carInfo=select("select * from carforrent "+cond+"");
+		CarForRent e;
+		while((e=careateCarRent(carInfo, "", ""))!=null)
+			list.add(e);
+		return list;
 	}
 
 	public static ArrayList<CarForSell> findSellByNameAndModel(String carName, String carModel) {
-		// TODO Auto-generated method stub
-		return null;
+		ResultSet carInfo= select("select * from carforsell where model like'%"+carModel+"%' and name like '%"+carName+"%'");
+		CarForSell m;
+		ArrayList<CarForSell>list= new ArrayList<>();
+		while((m=createCarForSell(carInfo))!=null){
+			list.add(m);
+		}
+		return list;
 	}
 
-	public static ArrayList<CarForSell> findSellByModel(String carNameOrModel) {
-		// TODO Auto-generated method stub
-		return null;
+	public static ArrayList<CarForSell> findSellByModel(String Model) {
+		ResultSet carInfo= select("select * from carforsell where model like'%"+Model+"%'");
+		CarForSell m;
+		ArrayList<CarForSell>list= new ArrayList<>();
+		while((m=createCarForSell(carInfo))!=null){
+			list.add(m);
+		}
+		return list;
 	}
 
-	public static ArrayList<CarForSell> findSellByName(String carNameOrModel) {
-		// TODO Auto-generated method stub
-		return null;
+	public static ArrayList<CarForSell> findSellByName(String carName) {
+		ResultSet carInfo= select("select * from carforsell where name like'%"+carName+"%'");
+		CarForSell m;
+		ArrayList<CarForSell>list= new ArrayList<>();
+		while((m=createCarForSell(carInfo))!=null){
+			list.add(m);
+		}
+		return list;
 	}
 
 	public static ArrayList<CarForRent> findRentByNameModelAndDate(String carName, String carModel,
@@ -300,14 +380,12 @@ public abstract class DB {
 		return null;
 	}
 
-	public static ArrayList<CarForRent> findRentByModelAndDate(String carNameOrModel, SimpleDateFormat from,
-			SimpleDateFormat to) {
+	public static ArrayList<CarForRent> findRentByModelAndDate(String carNameOrModel, String from,String to) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public static ArrayList<CarForRent> findRentByNameAndDate(String carNameOrModel, SimpleDateFormat from,
-			SimpleDateFormat to) {
+	public static ArrayList<CarForRent> findRentByNameAndDate(String carNameOrModel, String from,String to) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -318,8 +396,7 @@ public abstract class DB {
 	}
 
 	public static boolean exists(String email) {
-		// TODO Auto-generated method stub
-		return false;
+		return editDataBase("update user set email="+email+" where email="+email+"");
 	}
 
 }
