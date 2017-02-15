@@ -374,29 +374,96 @@ public abstract class DB {
 		return list;
 	}
 
-	public static ArrayList<CarForRent> findRentByNameModelAndDate(String carName, String carModel,
-			SimpleDateFormat from, SimpleDateFormat to) {
-		// TODO Auto-generated method stub
-		return null;
+	public static ArrayList<CarForRent> findRentByNameModelAndDate(String carName, String carModel,String from, String to) {
+		ArrayList<CarForRent>list= new ArrayList<>();
+		ArrayList<Integer> unAllowed=new ArrayList<>();
+		ResultSet resultDate= select("select carId from rentedcars where ('"+from+"','"+to+"') OVERLAPS (rentFrom,rentTo)");
+		try {
+			while(resultDate.next()){
+				unAllowed.add(resultDate.getInt("carId"));
+			}
+		} catch (SQLException |NullPointerException e) {}
+		StringBuffer cond= new StringBuffer();
+		if(!unAllowed.isEmpty()){
+			cond.append(" where name like'%"+carName+"%' and model like '%"+carModel+"%'");
+			for(Integer x:unAllowed)
+				cond.append(" and carId != "+unAllowed.get(x)+" ");
+		}
+		ResultSet carInfo=select("select * from carforrent "+cond+"");
+		CarForRent e;
+		while((e=careateCarRent(carInfo, "", ""))!=null)
+			list.add(e);
+		return list;
 	}
 
-	public static ArrayList<CarForRent> findRentByModelAndDate(String carNameOrModel, String from,String to) {
-		// TODO Auto-generated method stub
-		return null;
+	public static ArrayList<CarForRent> findRentByModelAndDate(String Model, String from,String to) {
+		ArrayList<CarForRent>list= new ArrayList<>();
+		ArrayList<Integer> unAllowed=new ArrayList<>();
+		ResultSet resultDate= select("select carId from rentedcars where ('"+from+"','"+to+"') OVERLAPS (rentFrom,rentTo)");
+		try {
+			while(resultDate.next()){
+				unAllowed.add(resultDate.getInt("carId"));
+			}
+		} catch (SQLException |NullPointerException e) {}
+		StringBuffer cond= new StringBuffer();
+		if(!unAllowed.isEmpty()){
+			cond.append(" where model like '%"+Model+"%'");
+			for(Integer x:unAllowed)
+				cond.append(" and carId != "+unAllowed.get(x)+" ");
+		}
+		ResultSet carInfo=select("select * from carforrent "+cond+"");
+		CarForRent e;
+		while((e=careateCarRent(carInfo, "", ""))!=null)
+			list.add(e);
+		return list;
 	}
 
-	public static ArrayList<CarForRent> findRentByNameAndDate(String carNameOrModel, String from,String to) {
-		// TODO Auto-generated method stub
-		return null;
+	public static ArrayList<CarForRent> findRentByNameAndDate(String carName, String from,String to) {
+		ArrayList<CarForRent>list= new ArrayList<>();
+		ArrayList<Integer> unAllowed=new ArrayList<>();
+		ResultSet resultDate= select("select carId from rentedcars where ('"+from+"','"+to+"') OVERLAPS (rentFrom,rentTo)");
+		try {
+			while(resultDate.next()){
+				unAllowed.add(resultDate.getInt("carId"));
+			}
+		} catch (SQLException |NullPointerException e) {}
+		StringBuffer cond= new StringBuffer();
+		if(!unAllowed.isEmpty()){
+			cond.append(" where name like'%"+carName+"%' ");
+			for(Integer x:unAllowed)
+				cond.append(" and carId != "+unAllowed.get(x)+" ");
+		}
+		ResultSet carInfo=select("select * from carforrent "+cond+"");
+		CarForRent e;
+		while((e=careateCarRent(carInfo, "", ""))!=null)
+			list.add(e);
+		return list;
 	}
 
 	public static ArrayList<CarForRent> findRentByNameAndModel(String carName, String carModel) {
-		// TODO Auto-generated method stub
-		return null;
+		ResultSet carInfo= select("select * from carforrent where name like'%"+carName+"%' and model like'%"+carModel+"%'");
+		CarForRent m;
+		ArrayList<CarForRent>list= new ArrayList<>();
+		while((m=careateCarRent(carInfo, "", ""))!=null){
+			list.add(m);
+		}
+		return list;
 	}
 
 	public static boolean exists(String email) {
 		return editDataBase("update user set email="+email+" where email="+email+"");
+	}
+
+	
+	public static ArrayList<String> emails() {
+		ArrayList<String>email=new ArrayList<>();
+		ResultSet result= select("select email from user");
+		try {
+			while(result.next()){
+				email.add(result.getString("email"));
+			}
+		} catch (SQLException | NullPointerException e) {}
+		return email;
 	}
 
 }

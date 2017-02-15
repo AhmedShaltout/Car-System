@@ -170,18 +170,18 @@ public class User{
     		return DB.findRentByName(carNameOrModel);
     	return DB.findRentByModel(carNameOrModel);
     }
-    public static ArrayList<CarForRent> rentFilter(SimpleDateFormat from ,SimpleDateFormat to){
+    public static ArrayList<CarForRent> rentFilterDate(String from ,String to){
     	return DB.findRentByDate(from,to);
     }
     public static ArrayList<CarForRent> rentFilter(String carName,String carModel){
     	return DB.findRentByNameAndModel(carName,carModel);
     }
-    public static ArrayList<CarForRent> rentFilter(String carNameOrModel , boolean byName,SimpleDateFormat from ,SimpleDateFormat to){
+    public static ArrayList<CarForRent> rentFilter(String carNameOrModel , boolean byName,String from ,String to){
     	if(byName)
     		return DB.findRentByNameAndDate(carNameOrModel,from,to);
     	return DB.findRentByModelAndDate(carNameOrModel,from,to);
     }
-    public static ArrayList<CarForRent> rentFilter(String carName,String carModel,SimpleDateFormat from ,SimpleDateFormat to){
+    public static ArrayList<CarForRent> rentFilter(String carName,String carModel,String from ,String to){
     	return DB.findRentByNameModelAndDate(carName,carModel,from,to);
     }
     public static ArrayList<CarForSell> sellFilter(String carNameOrModel , boolean byName){
